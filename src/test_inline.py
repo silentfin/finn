@@ -4,6 +4,8 @@ from inline import (
     extract_markdown_images,
     extract_markdown_links,
     split_nodes_delimiter,
+    split_nodes_image,
+    split_nodes_link,
 )
 from textnode import TextNode, TextType
 
@@ -130,6 +132,40 @@ class TestInline(unittest.TestCase):
             "This is text with a [batman](https://batman.com) and here is a cool ![wallpaper](https://wallhaven.cc/w/m96d8m)"
         )
         self.assertListEqual([("wallpaper", "https://wallhaven.cc/w/m96d8m")], matches)
+
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.TEXT),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", TextType.TEXT),
+                TextNode(
+                    "second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+        )
+
+    def test_split_links(self):
+        node = TextNode(
+            "These are cool sites [duckduckgo](https://noai.duckduckgo.com/) and another [wallhaven](https://wallhaven.cc/w/m96d8m)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("These are cool sites ", TextType.TEXT),
+                TextNode("duckduckgo", TextType.LINK, "https://noai.duckduckgo.com/"),
+                TextNode(" and another ", TextType.TEXT),
+                TextNode("wallhaven", TextType.LINK, "https://wallhaven.cc/w/m96d8m"),
+            ],
+            new_nodes,
+        )
 
 
 if __name__ == "__main__":
