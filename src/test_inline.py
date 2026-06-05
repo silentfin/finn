@@ -6,6 +6,7 @@ from inline import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
+    text_to_textnodes,
 )
 from textnode import TextNode, TextType
 
@@ -166,6 +167,104 @@ class TestInline(unittest.TestCase):
             ],
             new_nodes,
         )
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        new_nodes = text_to_textnodes(text)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode(
+                    "obi wan image",
+                    TextType.IMAGE,
+                    "https://i.imgur.com/fJRm4Vk.jpeg",
+                ),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ],
+        )
+
+    def test_text_to_textnodes_plain_text(self):
+        text = "This is simple plain text"
+        new_nodes = text_to_textnodes(text)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is simple plain text", TextType.TEXT),
+            ],
+        )
+
+    def test_text_to_textnodes_single_bold(self):
+        text = "This is **bold** text"
+        new_nodes = text_to_textnodes(text)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold", TextType.BOLD),
+                TextNode(" text", TextType.TEXT),
+            ],
+        )
+
+    def test_text_to_textnodes_single_italics(self):
+        text = "This is _italics_ text"
+        new_nodes = text_to_textnodes(text)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("italics", TextType.ITALIC),
+                TextNode(" text", TextType.TEXT),
+            ],
+        )
+
+    def test_text_to_textnodes_single_code(self):
+        text = "This is `code` text"
+        new_nodes = text_to_textnodes(text)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("code", TextType.CODE),
+                TextNode(" text", TextType.TEXT),
+            ],
+        )
+
+    def test_text_to_textnodes_image_only(self):
+        text = "Look at ![moon](https://wallhaven.cc/w/vpyekp) here"
+        new_nodes = text_to_textnodes(text)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("Look at ", TextType.TEXT),
+                TextNode("moon", TextType.IMAGE, "https://wallhaven.cc/w/vpyekp"),
+                TextNode(" here", TextType.TEXT),
+            ],
+        )
+
+    def test_text_to_textnodes_link_only(self):
+        text = "This is a [duckduckgo](https://noai.duckduckgo.com/) cool site"
+        new_nodes = text_to_textnodes(text)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is a ", TextType.TEXT),
+                TextNode("duckduckgo", TextType.LINK, "https://noai.duckduckgo.com/"),
+                TextNode(" cool site", TextType.TEXT),
+            ],
+        )
+
+    def test_text_to_textnodes_empty(self):
+        text = ""
+        new_nodes = text_to_textnodes(text)
+        self.assertEqual(new_nodes, [])
 
 
 if __name__ == "__main__":
