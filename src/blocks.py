@@ -1,9 +1,9 @@
 import re
 from enum import Enum
 
-from src.htmlnode import ParentNode
-from src.inline import text_to_textnodes
-from src.textnode import TextNode, TextType, text_node_to_html_node
+from htmlnode import ParentNode
+from inline import text_to_textnodes
+from textnode import TextNode, TextType, text_node_to_html_node
 
 
 class BlockType(Enum):

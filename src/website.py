@@ -2,6 +2,8 @@ import logging
 import os
 import shutil
 
+from blocks import markdown_to_html_node
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     filename="copy-files-logs.log",
@@ -24,3 +26,24 @@ def copy_files(source, destination):
             logger.info(f"Copied {content} to {destination}")
         else:
             copy_files(source_path, destination_path)
+
+
+def extract_title(markdown):
+    if markdown.startswith("# "):
+        return markdown[2:]
+    raise Exception("No title found")
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    with open(from_path, "r") as f:
+        contents = f.read()
+    with open(template_path, "r") as t:
+        template = t.read()
+    html_string = markdown_to_html_node(contents).to_html()
+    title = extract_title(contents)
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", html_string)
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    with open(dest_path, "w") as t:
+        t.write(template)
