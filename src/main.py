@@ -1,9 +1,8 @@
-from src.textnode import TextNode, TextType
+from website import copy_files
 
 
 def main():
-    md = TextNode("Cool search engine", TextType.LINK, "https://noai.duckduckgo.com/")
-    print(md)
+    copy_files("static", "public")
 
 
 if __name__ == "__main__":
